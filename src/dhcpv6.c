@@ -603,7 +603,7 @@ static int dhcpv6_handle_advert(_unused enum dhcpv6_msg orig,
 		if ((otype == DHCPV6_OPT_IA_PD || otype == DHCPV6_OPT_IA_NA)
                                && olen > sizeof(struct dhcpv6_ia_hdr)) {
                        struct dhcpv6_ia_hdr *ia_hdr = (void*)(&odata[-4]);
-                       uint32_t n = dhcpv6_parse_ia(&ia_hdr[1], odata + olen);
+                       dhcpv6_parse_ia(&ia_hdr[1], odata + olen);
                }
 	}
 
