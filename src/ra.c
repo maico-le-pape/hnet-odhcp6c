@@ -33,6 +33,14 @@
 #include "odhcp6c.h"
 #include "ra.h"
 
+/* ANDROID_CHANGE_BEGIN */
+#ifndef SOCK_CLOEXEC
+#define SOCK_CLOEXEC 0
+#endif
+#ifndef ICMP6_FILTER
+#define ICMP6_FILTER 1
+#endif
+/* ANDROID_CHANGE_END */
 
 static int sock = -1, rtnl_sock = -1;
 static unsigned if_index = 0;

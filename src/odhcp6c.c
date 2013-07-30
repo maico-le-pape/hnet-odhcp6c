@@ -50,7 +50,9 @@ int main(_unused int argc, char* const argv[])
 {
 	// Allocate ressources
 	const char *pidfile = NULL;
-	const char *script = "/usr/sbin/odhcp6c-update";
+	/* ANDROID_CHANGE_BEGIN */
+	const char *script = "/etc/dhcp/odhcp6c-update";
+	/* ANDROID_CHANGE_END */
 	ssize_t l;
 	uint8_t buf[134];
 	char *optpos;
@@ -179,7 +181,9 @@ int main(_unused int argc, char* const argv[])
 			pidfile = pidbuf;
 		}
 
-		int fd = open(pidfile, O_WRONLY | O_CREAT);
+		/* ANDROID_CHANGE_BEGIN */
+		int fd = open(pidfile, O_WRONLY | O_CREAT, 00600);
+		/* ANDROID_CHANGE_END */
 		if (fd >= 0) {
 			char buf[8];
 			int len = snprintf(buf, sizeof(buf), "%i\n", getpid());
@@ -323,7 +327,9 @@ static int usage(void)
 	"	-c <clientid>	Override client-ID (base-16 encoded)\n"
 	"	-i <iface-id>	Use a custom interface identifier for RA handling\n"
 	"	-r <options>	Options to be requested (comma-separated)\n"
-	"	-s <script>	Status update script (/usr/sbin/odhcp6c-update)\n"
+	  /* ANDROID_CHANGE_BEGIN */
+	"	-s <script>	Status update script (/etc/dhcp/odhcp6c-update)\n"
+	  /* ANDROID_CHANGE_END */
 	"	-k		Don't send a RELEASE when stopping\n"
 	"\nInvocation options:\n"
 	"	-p <pidfile>	Set pidfile (/var/run/6relayd.pid)\n"

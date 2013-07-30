@@ -42,6 +42,11 @@
 #define DHCPV6_DUID_LLADDR 3
 #define DHCPV6_REQ_DELAY 1
 
+/* ANDROID_CHANGE_BEGIN */
+#ifndef SOCK_CLOEXEC
+#define SOCK_CLOEXEC 0
+#endif
+/* ANDROID_CHANGE_END */
 
 static bool dhcpv6_response_is_valid(const void *buf, ssize_t len,
 		const uint8_t transaction[3], enum dhcpv6_msg type);

@@ -1,0 +1,83 @@
+#!/system/bin/sh
+
+leaseFile=/data/dhcp/dhcpv6_$1.leases
+dnsFile=/data/dhcp/dhcpv6_$1.dns
+
+prepare_interface () {
+        local interface="$1"
+	
+	ip link set dev ${interface} up
+	ip -f inet6 addr flush dev ${interface} scope global permanent
+}
+
+setup_interface () {
+        local interface="$1"
+	
+	touch ${leaseFile}.new
+
+	for entry in $ADDRESSES; do
+	        local addr="${entry%%/*}"
+                entry="${entry#*/}"
+                local mask="${entry%%,*}"
+                entry="${entry#*,}"
+                local preferred="${entry%%,*}"
+                entry="${entry#*,}"
+                local valid="${entry%%,*}"
+		entry="${entry#*,}"
+		local class="${entry%%,*}"
+		local class_test="${class%%=*}"
+		if [ ${class_test} == "class" ]; then
+		    class="${class#class=}"
+		else
+		    class="0"
+		fi
+	        ip -f inet6 addr add ${addr}/${mask} dev ${interface} class ${class} scope global
+		echo "${addr} ${mask} ${preferred} ${class}" >> ${leaseFile}.new
+	done
+
+	chmod 644 ${leaseFile}.new
+	mv ${leaseFile}.new ${leaseFile}
+}
+
+read_dns () {
+        local interface="$1"
+
+	touch ${dnsFile}.new
+
+	for dns in $RDNSS; do
+	        echo "$dns" >> ${dnsFile}.new
+	done
+
+	for dns in $RA_DNS; do
+	        echo "$dns" >> ${dnsFile}.new
+	done
+
+	chmod 644 ${leaseFile}.new
+	mv ${dnsFile}.new ${dnsFile}
+}
+
+teardown_interface () {
+	ip -f inet6 addr flush dev ${interface} scope global permanent
+}
+
+mkdir -p /data/dhcp
+
+case "$2" in
+        started)
+                prepare_interface "$1"
+	;;
+        bound|updated|rebound)
+                setup_interface "$1"
+		read_dns "$1"
+		setprop dhcpv6.$1.result "ok"
+        ;;
+        informed|ra_updated)
+	        read_dns "$1"
+	        setprop dhcpv6.$1.result "ok"
+	;;
+        unbound|timeout)
+                teardown_interface "$1"
+        ;;
+esac
+
+exit 0
