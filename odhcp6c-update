@@ -52,15 +52,17 @@ read_dns () {
 	        echo "$dns" >> ${dnsFile}.new
 	done
 
-	chmod 644 ${leaseFile}.new
+	chmod 644 ${dnsFile}.new
 	mv ${dnsFile}.new ${dnsFile}
 }
 
 teardown_interface () {
+        rm ${leaseFile}
 	ip -f inet6 addr flush dev ${interface} scope global permanent
 }
 
 mkdir -p /data/dhcp
+chmod 775 /data/dhcp
 
 case "$2" in
         started)
